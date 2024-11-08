@@ -18,9 +18,9 @@ export default function Layout({
               <SidebarTrigger />
             </div>
             <Title className="text-sm" />
-            <CurrentTime className="text-muted-foreground ml-auto hidden text-sm sm:block" />
+            <CurrentTime className="ml-auto hidden text-sm text-muted-foreground sm:block" />
           </div>
-          <div className="p-4">{children}</div>
+          <div className="h-[calc(100%-46px)] p-4">{children}</div>
         </main>
       </SidebarProvider>
     </TitleProvider>

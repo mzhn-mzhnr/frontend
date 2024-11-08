@@ -9,7 +9,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { File, Home } from "lucide-react";
+import { File, Home, MessageCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import SidebarFooterMenu from "./footer";
@@ -58,11 +58,11 @@ function DashboardSidebarContent() {
         <SidebarMenu>
           <DashboardButton icon={<Home />} title="Главная" link="/" exact />
           <DashboardButton icon={<File />} title="Файлы" link="/files" exact />
-          {/* <DashboardMenu icon={<Group />} title="Группа" link="/page">
-            <DashboardButton title="Страница 1" link="/page/page1" sub />
-            <DashboardButton title="Страница 2" link="/page/page2" sub />
-            <DashboardButton title="Страница 3" link="/page/page3" sub />
-          </DashboardMenu> */}
+          <DashboardButton
+            icon={<MessageCircle />}
+            title="Чаты"
+            link="/chats"
+          />
         </SidebarMenu>
       </SidebarGroup>
     </SidebarContent>
