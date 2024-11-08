@@ -9,7 +9,7 @@ export async function apiFetch<T>(
   options: RequestInit = {},
   baseUrl?: string
 ): Promise<T> {
-  baseUrl ??= process.env.NEXT_PUBLIC_SELF_URL!;
+  baseUrl ??= process.env.NEXT_PUBLIC_API_URL!;
   const authData = await getSession<AuthResult>();
 
   const headers = new Headers(options.headers ?? {});
@@ -25,7 +25,8 @@ export async function apiFetch<T>(
     ...options,
     headers,
   };
-  const response = await fetch(`${baseUrl}${url}`, requestOptions);
+  const uurl = url.startsWith("http") ? url : `${baseUrl}${url}`;
+  const response = await fetch(uurl, requestOptions);
 
   if (!response.ok) {
     if (response.status === 401) {
