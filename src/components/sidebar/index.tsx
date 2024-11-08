@@ -9,11 +9,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Group, Home } from "lucide-react";
+import { File, Home } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import SidebarFooterMenu from "./footer";
-import { DashboardButton, DashboardMenu } from "./ui";
+import { DashboardButton } from "./ui";
 
 import logo from "@/assets/images/logo.png";
 
@@ -39,7 +39,7 @@ function DashboardSidebarHeader() {
               </div>
               <div className="grid flex-1 truncate text-left leading-tight">
                 <p className="pl-2 text-sm font-bold">Brand</p>
-                <p className="text-muted-foreground pl-2 text-xs">
+                <p className="pl-2 text-xs text-muted-foreground">
                   Панель администратора
                 </p>
               </div>
@@ -57,11 +57,12 @@ function DashboardSidebarContent() {
       <SidebarGroup>
         <SidebarMenu>
           <DashboardButton icon={<Home />} title="Главная" link="/" exact />
-          <DashboardMenu icon={<Group />} title="Группа" link="/page">
+          <DashboardButton icon={<File />} title="Файлы" link="/files" exact />
+          {/* <DashboardMenu icon={<Group />} title="Группа" link="/page">
             <DashboardButton title="Страница 1" link="/page/page1" sub />
             <DashboardButton title="Страница 2" link="/page/page2" sub />
             <DashboardButton title="Страница 3" link="/page/page3" sub />
-          </DashboardMenu>
+          </DashboardMenu> */}
         </SidebarMenu>
       </SidebarGroup>
     </SidebarContent>
