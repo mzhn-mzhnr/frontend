@@ -2,7 +2,6 @@
 
 import { User } from "@/api/auth";
 import { getAvatar } from "@/api/user";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +16,7 @@ import { BadgeCheck, ChevronsUpDown, LogOut } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import Profile from "../profile";
+import UserAvatar from "../profile/avatar";
 
 export default function SidebarFooterMenu({ user }: { user: User }) {
   const { isMobile } = useSidebar();
@@ -55,13 +55,10 @@ export default function SidebarFooterMenu({ user }: { user: User }) {
 }
 
 function SidebarFooterDropdownTrigger({ user }: { user: User }) {
-  const avatar = getAvatar(user);
   return (
     <DropdownMenuTrigger asChild>
       <SidebarMenuButton size="lg" className="gap-0">
-        <Avatar className="h-8 w-8 rounded-lg">
-          <AvatarImage src={avatar} alt={user.email} />
-        </Avatar>
+        <UserAvatar user={user} className="h-8 w-8 rounded-lg" />
         <div className="grid flex-1 truncate text-left leading-tight">
           <p className="pl-2 text-sm font-bold">{user.email}</p>
         </div>
@@ -76,9 +73,7 @@ function SidebarFooterDropdownHeader({ user }: { user: User }) {
   return (
     <DropdownMenuLabel className="p-0 font-normal">
       <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-        <Avatar className="h-8 w-8 rounded-lg">
-          <AvatarImage src={avatar} alt={user.email} />
-        </Avatar>
+        <UserAvatar user={user} className="h-8 w-8 rounded-lg" />
         <div className="grid flex-1 text-left text-sm leading-tight">
           <span className="truncate font-semibold">
             {user.firstName ?? "User"}
