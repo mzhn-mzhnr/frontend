@@ -2,8 +2,9 @@ import { apiFetch } from "@/lib/fetch";
 
 export interface Message {
   id: string;
-  from_id?: string;
-  text: string;
+  body: string;
+  isUser: boolean;
+  createdAt: string;
 }
 
 export interface Chat {
@@ -13,7 +14,7 @@ export interface Chat {
 
 export interface Conversation {
   conversation: Chat;
-  messages: unknown[];
+  messages: Message[];
 }
 
 export async function all() {
@@ -24,7 +25,7 @@ export async function all() {
 }
 
 export async function byId(id: string) {
-  return await apiFetch<Conversation>(`/conversations/${id}/`);
+  return await apiFetch<Conversation>(`/conversations/${id}`);
 }
 
 export async function newChat() {
