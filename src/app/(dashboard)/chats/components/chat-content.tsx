@@ -73,7 +73,7 @@ export default function ChatContent() {
   const { chat_id, setMessages } = useChatContext();
   const { initialMessage, setInitialMessage } = useChatInitialContext();
   const [input, setInput] = useState("");
-  const { messages, send, pendingMessage } = useChat();
+  const { messages, send } = useChat();
 
   useEffect(() => {
     mainRef.current?.scrollTo(0, mainRef.current?.scrollHeight);
