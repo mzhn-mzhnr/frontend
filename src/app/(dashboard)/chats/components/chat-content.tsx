@@ -51,8 +51,9 @@ function ChatMessage({ message }: ChatMessageProps) {
         {message.sources && message.sources.length > 0 && (
           <div className="border-t-2 border-black/10 py-2">
             <p className="py-2">Источники:</p>
-            {message.sources.map((m) => (
+            {message.sources.map((m, i) => (
               <a
+                key={i}
                 href={`${process.env.NEXT_PUBLIC_API_URL}/fs/file/${m.fileName}?id=${m.fileId}#page=${m.slideNum}`}
                 target="_blank"
                 className="text-blue-500 hover:underline"
