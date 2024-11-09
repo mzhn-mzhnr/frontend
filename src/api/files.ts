@@ -10,5 +10,5 @@ interface FileResponse {
 }
 
 export async function all() {
-  return (await apiFetch<FileResponse>("/files")).files;
+  return (await apiFetch<FileResponse>("/files/files")).files;
 }
