@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -6,10 +8,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ArrowDownWideNarrow, Plus } from "lucide-react";
-import FileCard from "./components/file-card";
+import { useState } from "react";
+import FileContent from "./components/file-content";
 import FileDialog from "./components/file-dialog";
 
 export default function Page() {
+  const [search, setSearch] = useState("");
+
   return (
     <main className="flex flex-col gap-4">
       <h1 className="scroll-m-20 text-xl font-bold lg:text-2xl">
@@ -19,6 +24,8 @@ export default function Page() {
         <input
           className="flex-grow rounded bg-gray-100 px-4 py-2"
           placeholder="Поиск"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
         />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -40,10 +47,7 @@ export default function Page() {
         </FileDialog>
       </div>
       <section className="flex flex-wrap justify-center gap-4 bg-white p-8 shadow md:justify-start">
-        <FileCard type="pdf" name="01.pdf" date={1731080462000} />
-        <FileCard type="pdf" name="02.pdf" date={1731080462000} />
-        <FileCard type="txt" name="03.txt" date={1731080462000} />
-        <FileCard type="pdf" name="04.pdf" date={1731080462000} />
+        <FileContent search={search} />
       </section>
     </main>
   );

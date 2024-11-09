@@ -2,16 +2,18 @@ import dayjs from "dayjs";
 import Image from "next/image";
 
 export interface FileCardProps {
+  id: string;
   type: string;
   name: string;
   date: number;
 }
 
-export default function FileCard({ type, name, date }: FileCardProps) {
+export default function FileCard({ id, type, name, date }: FileCardProps) {
   const datestr = dayjs(date).format("DD.MM.YYYY");
+  const link = `http://176.114.89.134:3001/file/${name}?id=${id}`;
   return (
     <a
-      href="#"
+      href={link}
       target="_blank"
       className="flex flex-col items-center gap-2 p-2 shadow transition hover:scale-105"
     >
