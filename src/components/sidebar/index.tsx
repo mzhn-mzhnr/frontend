@@ -38,7 +38,7 @@ function DashboardSidebarHeader() {
                 <Image src={logo} alt="Logo" width={16} height={16} />
               </div>
               <div className="grid flex-1 truncate text-left leading-tight">
-                <p className="pl-2 text-sm font-bold">Brand</p>
+                <p className="pl-2 text-sm font-bold">Smart Vault</p>
                 <p className="pl-2 text-xs text-muted-foreground">
                   Панель администратора
                 </p>
