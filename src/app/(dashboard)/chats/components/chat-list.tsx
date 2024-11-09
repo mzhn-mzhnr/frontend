@@ -19,7 +19,7 @@ function ChatListEntry({ id, active }: ChatListEntryProps) {
       <Link
         href={`/chats/${id}`}
         className={cn(
-          "grid grid-cols-[32px_1fr] items-center gap-4 p-4 transition hover:bg-slate-100",
+          "grid grid-cols-[32px_1fr] items-center gap-4 p-2 transition hover:bg-slate-100",
           active && "bg-slate-100"
         )}
       >

@@ -13,13 +13,10 @@ export async function sendMessageAndStream(
     const { value, done } = await reader.read();
 
     if (done) {
-      console.log("done!");
-
       controller.close();
       break;
     }
     const chunk = decoder.decode(value, { stream: true });
-    console.log("got chunk", chunk, done);
     controller.enqueue(encoder.encode(chunk));
   }
 }

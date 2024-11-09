@@ -3,9 +3,10 @@
 import { Message } from "@/api/chats";
 import UserAvatar from "@/components/profile/avatar";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import useProfile from "@/hooks/use-profile";
 import { cn } from "@/lib/utils";
-import { LoaderCircle, Send, X } from "lucide-react";
+import { LoaderCircle, Plus, Send, X } from "lucide-react";
 import Link from "next/link";
 import { createRef, FormEvent, useEffect, useState } from "react";
 import useChat from "../hooks/use-chat";
@@ -74,12 +75,15 @@ export default function ChatContent() {
   useEffect(() => {
     mainRef.current?.scrollTo(0, mainRef.current?.scrollHeight);
     if (initialMessage != undefined) {
-      console.log(initialMessage);
       setInput(initialMessage);
       setInitialMessage(undefined);
       onSubmit();
     }
   }, []);
+
+  useEffect(() => {
+    if (input != "" && initialMessage == undefined) onSubmit();
+  }, [initialMessage]);
 
   const onSubmit = (e?: FormEvent) => {
     e?.preventDefault();
@@ -97,7 +101,15 @@ export default function ChatContent() {
   return (
     <>
       <header className="flex items-center justify-between border-b px-4 py-2 font-bold">
-        <ChatAvatar id={chat_id} />
+        <div className="flex items-center gap-4">
+          <ChatAvatar id={chat_id} />
+          <Button variant={"secondary"} asChild>
+            <Link href={"/chats"}>
+              <Plus />
+              Новый вопрос
+            </Link>
+          </Button>
+        </div>
         Чат
         <Button variant={"ghost"} size={"icon"} asChild>
           <Link href="/chats">
@@ -106,13 +118,25 @@ export default function ChatContent() {
         </Button>
       </header>
       <main
-        className="flex-grow space-y-4 overflow-y-auto px-8 py-4"
+        className="max-h-[calc(100vh-200px)] flex-grow px-4 py-2"
         ref={mainRef}
       >
-        {messages.map((m, i) => (
-          <ChatMessage key={i} message={m} />
-        ))}
-        {send.isPending && pendingMessage}
+        <ScrollArea className="h-full px-4 py-2">
+          <div className="space-y-4">
+            {messages.map((m, i) => (
+              <ChatMessage key={i} message={m} />
+            ))}
+            {send.isPending && (
+              <ChatMessage
+                message={{
+                  body: `${pendingMessage}▌`,
+                  createdAt: "",
+                  isUser: false,
+                }}
+              />
+            )}
+          </div>
+        </ScrollArea>
       </main>
       <form
         onSubmit={onSubmit}
