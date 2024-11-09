@@ -1,14 +1,15 @@
 "use client";
 
-import { Message } from "@/api/chats";
+import { Message, MessageData, send } from "@/api/chats";
 import UserAvatar from "@/components/profile/avatar";
 import { Button } from "@/components/ui/button";
 import useProfile from "@/hooks/use-profile";
 import { cn } from "@/lib/utils";
+import { useMutation } from "@tanstack/react-query";
 import { Send, X } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
-import useChat from "../hooks/use-chat";
 import ChatAvatar from "./chat-avatar";
 import { useChatContext } from "./chat-provider";
 
@@ -44,102 +45,88 @@ function ChatMessage({ message }: ChatMessageProps) {
       )}
     >
       {message.isUser ? UserAvatar_ : <ChatAvatar id={chat_id} />}
-      <div className="w-auto rounded p-4 shadow">{message.body}</div>
+      <div className="flex w-auto flex-col rounded p-4 shadow">
+        <span>{message.body}</span>
+        {message.meta && (
+          <div>
+            <span className="border p-2">
+              <a
+                href={`${process.env.NEXT_PUBLIC_API_URL}/fs/file/${message.meta.fileName}?id=${message.meta.fileId}#page=${message.meta.slideNum}`}
+                target="_blank"
+                className="hover:underline"
+              >
+                {message.meta.fileName}, стр. {message.meta.slideNum}
+              </a>
+            </span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 
 export default function ChatContent() {
-  const { chat_id, setMessages } = useChatContext();
-  const [message, setMessage] = useState("");
-  const { messages, send, pendingMessage } = useChat();
+  const { chat_id, messages, setMessages } = useChatContext();
+  const [input, setInput] = useState("");
+  const [pendingMessage, setPendingMessage] = useState<string | undefined>();
+  const router = useRouter();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: async (data: MessageData) => {
+      const response = await send(data);
+      if (!response.body) {
+        console.log("do nothing");
+        throw new Error();
+      }
+
+      const reader = response.body
+        .pipeThrough(new TextDecoderStream())
+        .getReader();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          console.log("break");
+          break;
+        }
+
+        console.log(value);
+
+        type resp = {
+          response: string;
+        };
+
+        const chunk = value.split("\n").find((v) => v.startsWith("data: "));
+
+        if (!chunk) {
+          continue;
+        }
+
+        const data: resp = JSON.parse(chunk.slice(5));
+
+        console.log("set pending message with", data.response);
+
+        setPendingMessage((v) => (v ? v + data.response : data.response));
+      }
+    },
+    onSuccess: () => {
+      setPendingMessage(undefined);
+      router.refresh();
+    },
+    onError: () => {
+      router.refresh();
+    },
+  });
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    setMessages([...messages, { body: message, isUser: true, createdAt: "" }]);
-    setMessage("");
-
-    send.mutate({ conversationId: chat_id, input: message });
+    if (!input) {
+      return;
+    }
+    setMessages([...messages, { body: input, isUser: true, createdAt: "" }]);
+    setInput("");
+    mutate({ conversationId: chat_id, input: input });
   };
-  // const { chat_id, messages, setMessages } = useChatContext();
-
-  // const { data, isLoading, isError } = useQuery({
-  //   queryKey: ["chats", chat_id],
-  //   queryFn: () => byId(chat_id),
-  // });
-  // const { initialMessage } = useChatInitialContext();
-  // const [message, setMessage] = useState("");
-  // // const [latestAiMessage, setLatestAiMessage] = useState("");
-  // // const [fileData, setFiledata] = useState<FileData>();
-
-  // useEffect(() => {
-  //   if (!isLoading && !isError) {
-  //     setMessages(data!.messages);
-  //   }
-
-  //   if (initialMessage == undefined || initialMessage == "") return;
-  //   setMessages([
-  //     { body: initialMessage, isUser: true, createdAt: "" },
-  //     ...messages,
-  //   ]);
-  // }, [isLoading, isError]);
-
-  // const sendMessage = useMutation({
-  //   mutationFn: async (data: MessageData) => {
-  //     setMessage("");
-  //     const response = await send(data);
-  //     if (!response.body) return;
-
-  //     const reader = response.body
-  //       .pipeThrough(new TextDecoderStream())
-  //       .getReader();
-
-  //     while (true) {
-  //       const { value, done } = await reader.read();
-
-  //       if (done) {
-  //         console.log(latestAiMessage);
-  //         setMessages([
-  //           ...messages,
-  //           { body: latestAiMessage, createdAt: "", isUser: false },
-  //         ]);
-  //         setLatestAiMessage("");
-  //         break;
-  //       }
-  //       if (value) {
-  //         const parsedData = value
-  //           .split("\n")
-  //           .filter((line) => line.startsWith("data: "));
-  //         parsedData.forEach((d) => {
-  //           const jsonData = JSON.parse(d.slice(6)) as Chunk;
-
-  //           if (jsonData.response) {
-  //             setLatestAiMessage(
-  //               (prevState) => prevState + jsonData.response + "▌"
-  //             );
-  //           } else {
-  //             setFiledata({
-  //               fileId: jsonData.fileId!,
-  //               filename: jsonData.filename!,
-  //               slidenum: jsonData.slidenum!,
-  //             });
-  //           }
-  //         });
-  //       }
-  //     }
-  //   },
-  // });
-
-  // const onSubmit = (e: FormEvent) => {
-  //   e.preventDefault();
-  //   const messageData: MessageData = {
-  //     conversationId: chat_id,
-  //     input: message,
-  //   };
-  //   sendMessage.mutate(messageData);
-  // };
-
-  // if (isLoading || isError) return <></>;
 
   return (
     <>
@@ -156,7 +143,7 @@ export default function ChatContent() {
         {messages.map((m, i) => (
           <ChatMessage key={i} message={m} />
         ))}
-        {pendingMessage}
+        {isPending && pendingMessage}
       </main>
       <form
         onSubmit={onSubmit}
@@ -165,14 +152,14 @@ export default function ChatContent() {
         <input
           className="flex-grow p-4"
           placeholder="Введите сообщение"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          disabled={send.isPending}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          disabled={isPending}
         />
         <Button
           variant={"ghost"}
           size={"icon"}
-          disabled={message.length == 0 || send.isPending}
+          disabled={input.length == 0 || isPending}
         >
           <Send />
         </Button>

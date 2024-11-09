@@ -1,9 +1,15 @@
 import { apiFetch, apiFetchCore } from "@/lib/fetch";
 
+export type Meta = {
+  fileId: string;
+  fileName: string;
+  slideNum: number;
+};
 export interface Message {
   body: string;
   isUser: boolean;
   createdAt: string;
+  meta?: Meta;
 }
 
 export interface Chat {
