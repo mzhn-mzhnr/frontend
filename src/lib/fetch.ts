@@ -3,13 +3,13 @@ import { redirect } from "next/navigation";
 import { cookies } from "./auth/cookie";
 import { getSession } from "./auth/session";
 
-export async function apiFetch<T>(
+export async function apiFetchCore(
   url: string,
   body?: unknown,
   options: RequestInit = {},
   baseUrl?: string
-): Promise<T> {
-  baseUrl ??= process.env.NEXT_PUBLIC_SELF_URL!;
+) {
+  baseUrl ??= process.env.NEXT_PUBLIC_API_URL!;
   const authData = await getSession<AuthResult>();
 
   const headers = new Headers(options.headers ?? {});
@@ -25,7 +25,17 @@ export async function apiFetch<T>(
     ...options,
     headers,
   };
-  const response = await fetch(`${baseUrl}${url}`, requestOptions);
+  const uurl = url.startsWith("http") ? url : `${baseUrl}${url}`;
+  return await fetch(uurl, requestOptions);
+}
+
+export async function apiFetch<T>(
+  url: string,
+  body?: unknown,
+  options: RequestInit = {},
+  baseUrl?: string
+): Promise<T> {
+  const response = await apiFetchCore(url, body, options, baseUrl);
 
   if (!response.ok) {
     if (response.status === 401) {

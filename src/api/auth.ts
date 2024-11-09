@@ -13,21 +13,21 @@ export interface AuthResult {
 export type { User };
 
 export async function auth(credentials: AuthCredentials) {
-  return await apiFetch<AuthResult>("/api/login", credentials, {
+  return await apiFetch<AuthResult>("/auth/login", credentials, {
     method: "POST",
   });
 }
 
 export async function logout() {
-  await apiFetch("/api/logout");
+  await apiFetch("/auth/logout");
 }
 
 export async function me() {
-  return await apiFetch<User>("/api/profile");
+  return await apiFetch<User>("/auth/profile");
 }
 
 export async function register(data: RegisterData) {
-  return await apiFetch<void>("/api/register", data, {
+  return await apiFetch<void>("/auth/register", data, {
     method: "POST",
   });
 }
