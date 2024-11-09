@@ -15,6 +15,7 @@ import Link from "next/link";
 import SidebarFooterMenu from "./footer";
 import { DashboardButton } from "./ui";
 
+import ChatList from "@/app/(dashboard)/chats/components/chat-list";
 import logo from "@/assets/images/logo.png";
 
 export default function DashboardSidebar() {
@@ -60,10 +61,13 @@ function DashboardSidebarContent() {
           <DashboardButton icon={<File />} title="Файлы" link="/files" exact />
           <DashboardButton
             icon={<MessageCircle />}
-            title="Чаты"
+            title="Новый чат"
             link="/chats"
           />
         </SidebarMenu>
+      </SidebarGroup>
+      <SidebarGroup>
+        <ChatList />
       </SidebarGroup>
     </SidebarContent>
   );
