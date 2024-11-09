@@ -7,7 +7,9 @@ import useProfile from "@/hooks/use-profile";
 import { cn } from "@/lib/utils";
 import { Send, X } from "lucide-react";
 import Link from "next/link";
+import { useEffect } from "react";
 import ChatAvatar from "./chat-avatar";
+import { useChatInitialContext } from "./chat-initial-provider";
 import { useChatContext } from "./chat-provider";
 
 interface ChatMessageProps {
@@ -33,7 +35,16 @@ function ChatMessage({ message }: ChatMessageProps) {
 }
 
 export default function ChatContent() {
-  const { chat_id, messages } = useChatContext();
+  const { chat_id, messages, setMessages } = useChatContext();
+  const { initialMessage } = useChatInitialContext();
+
+  useEffect(() => {
+    if (initialMessage == undefined || initialMessage == "") return;
+    setMessages([
+      { id: "0", text: initialMessage, from_id: "user" },
+      ...messages,
+    ]);
+  }, []);
 
   return (
     <>

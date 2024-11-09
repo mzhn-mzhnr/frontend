@@ -1,4 +1,4 @@
-import { chats } from "./mock/chats";
+import { apiFetch } from "@/lib/fetch";
 
 export interface Message {
   id: string;
@@ -8,13 +8,28 @@ export interface Message {
 
 export interface Chat {
   id: string;
-  history: Message[];
+  createdAt: string;
+}
+
+export interface Conversation {
+  conversation: Chat;
+  messages: unknown[];
 }
 
 export async function all() {
-  return chats;
+  const result = (await apiFetch("/conversations/")) as {
+    conversations: Chat[];
+  };
+  return result.conversations;
 }
 
 export async function byId(id: string) {
-  return chats.find((c) => c.id === id);
+  return await apiFetch<Conversation>(`/conversations/${id}/`);
+}
+
+export async function newChat() {
+  const result = (await apiFetch("/conversations/", null, {
+    method: "POST",
+  })) as { id: string };
+  return result.id;
 }

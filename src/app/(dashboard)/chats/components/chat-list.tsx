@@ -3,6 +3,7 @@
 import { all } from "@/api/chats";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
+import { LoaderCircle } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import ChatAvatar from "./chat-avatar";
@@ -39,7 +40,11 @@ export default function ChatList() {
   });
 
   if (isLoading || isError) {
-    return <ul className="flex flex-col divide-y rounded bg-white shadow"></ul>;
+    return (
+      <ul className="flex flex-col items-center justify-center rounded bg-white p-8 shadow">
+        <LoaderCircle className="animate-spin" />
+      </ul>
+    );
   }
 
   return (

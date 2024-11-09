@@ -1,4 +1,4 @@
-import { byId } from "@/api/chats";
+import { byId, Message } from "@/api/chats";
 import ChatContent from "../components/chat-content";
 import { ChatProvider } from "../components/chat-provider";
 
@@ -15,7 +15,7 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <section className="flex h-full flex-col rounded bg-white shadow">
-      <ChatProvider id={params.id} history={chat.history}>
+      <ChatProvider id={params.id} history={chat.messages as Message[]}>
         <ChatContent />
       </ChatProvider>
     </section>
