@@ -1,7 +1,6 @@
-import { apiFetch } from "@/lib/fetch";
+import { apiFetch, apiFetchCore } from "@/lib/fetch";
 
 export interface Message {
-  id: string;
   body: string;
   isUser: boolean;
   createdAt: string;
@@ -15,6 +14,11 @@ export interface Chat {
 export interface Conversation {
   conversation: Chat;
   messages: Message[];
+}
+
+export interface MessageData {
+  conversationId: string;
+  input: string;
 }
 
 export async function all() {
@@ -33,4 +37,8 @@ export async function newChat() {
     method: "POST",
   })) as { id: string };
   return result.id;
+}
+
+export async function send(data: MessageData) {
+  return await apiFetchCore("/conversations/send", data, { method: "POST" });
 }
