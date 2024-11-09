@@ -11,7 +11,7 @@ export interface FileDropzoneProps {}
 
 export default function FileDropzone({}: FileDropzoneProps) {
   const headers = new Headers({});
-  const [isPending, setPending] = useState(true);
+  const [isPending, setPending] = useState(false);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const authData = await getSession<AuthResult>();
@@ -32,6 +32,7 @@ export default function FileDropzone({}: FileDropzoneProps) {
       headers,
     }).finally(() => {
       setPending(false);
+      location.reload();
     });
   }, []);
 

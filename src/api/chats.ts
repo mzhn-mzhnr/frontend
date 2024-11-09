@@ -1,4 +1,4 @@
-import { apiFetch, apiFetchCore } from "@/lib/fetch";
+import { apiFetch } from "@/lib/fetch";
 
 export type Meta = {
   fileId: string;
@@ -9,7 +9,7 @@ export interface Message {
   body: string;
   isUser: boolean;
   createdAt: string;
-  meta?: Meta;
+  sources?: Meta[];
 }
 
 export interface Chat {
@@ -25,6 +25,11 @@ export interface Conversation {
 export interface MessageData {
   conversationId: string;
   input: string;
+}
+
+export interface SendResult {
+  answer: string;
+  sources: Meta[];
 }
 
 export async function all() {
@@ -45,6 +50,6 @@ export async function newChat() {
   return result.id;
 }
 
-export async function send(data: MessageData) {
-  return await apiFetchCore("/conversations/send", data, { method: "POST" });
+export async function send(data: MessageData): Promise<SendResult> {
+  return await apiFetch("/conversations/send", data, { method: "POST" });
 }

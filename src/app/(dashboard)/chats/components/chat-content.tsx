@@ -48,16 +48,18 @@ function ChatMessage({ message }: ChatMessageProps) {
       {message.isUser ? UserAvatar_ : <ChatAvatar id={chat_id} />}
       <div className="flex w-auto flex-col gap-4 rounded p-4 shadow">
         <span>{message.body}</span>
-        {message.meta && (
+        {message.sources && message.sources.length > 0 && (
           <div className="border-t-2 border-black/10 py-2">
             <p className="py-2">Источники:</p>
-            <a
-              href={`${process.env.NEXT_PUBLIC_API_URL}/fs/file/${message.meta.fileName}?id=${message.meta.fileId}#page=${message.meta.slideNum}`}
-              target="_blank"
-              className="text-blue-500 hover:underline"
-            >
-              {message.meta.fileName}, стр. {message.meta.slideNum}
-            </a>
+            {message.sources.map((m) => (
+              <a
+                href={`${process.env.NEXT_PUBLIC_API_URL}/fs/file/${m.fileName}?id=${m.fileId}#page=${m.slideNum}`}
+                target="_blank"
+                className="text-blue-500 hover:underline"
+              >
+                {m.fileName}, стр. {m.slideNum}
+              </a>
+            ))}
           </div>
         )}
       </div>
@@ -92,10 +94,14 @@ export default function ChatContent() {
     }
     setMessages([...messages, { body: input, isUser: true, createdAt: "" }]);
     setInput("");
-    mainRef.current?.scrollTo(0, mainRef.current?.scrollHeight);
-    send.mutate({ conversationId: chat_id, input: input });
+    setTimeout(() => {
+      mainRef.current?.scrollTo(0, mainRef.current?.scrollHeight);
+      send.mutate({ conversationId: chat_id, input: input });
 
-    mainRef.current?.scrollTo(0, mainRef.current?.scrollHeight);
+      setTimeout(() => {
+        mainRef.current?.scrollTo(0, mainRef.current?.scrollHeight);
+      }, 0);
+    }, 0);
   };
 
   return (
@@ -126,15 +132,6 @@ export default function ChatContent() {
             {messages.map((m, i) => (
               <ChatMessage key={i} message={m} />
             ))}
-            {send.isPending && (
-              <ChatMessage
-                message={{
-                  body: `${pendingMessage}▌`,
-                  createdAt: "",
-                  isUser: false,
-                }}
-              />
-            )}
           </div>
         </ScrollArea>
       </main>

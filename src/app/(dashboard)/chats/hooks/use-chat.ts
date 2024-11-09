@@ -1,6 +1,6 @@
-import { MessageData, Meta } from "@/api/chats";
+import { Message, MessageData, Meta, send as apiSend } from "@/api/chats";
 import { useMutation } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useChatContext } from "../components/chat-provider";
 import { Chunk } from "../stream/lib";
 
@@ -21,57 +21,60 @@ export default function useChat() {
 
   const sendMessage = useMutation({
     mutationFn: async (data: MessageData) => {
-      const response = await fetch("/chats/stream", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
-      if (!response.body) return;
+      const response = await apiSend(data);
+      const message: Message = {
+        body: response.answer,
+        sources: response.sources,
+        createdAt: "",
+        isUser: false,
+      };
 
-      const reader = response.body
-        .pipeThrough(new TextDecoderStream())
-        .getReader();
-      let latestMessage = "";
+      setMessages([...messages, message]);
+      // const reader = response.body
+      //   .pipeThrough(new TextDecoderStream())
+      //   .getReader();
+      // let latestMessage = "";
 
-      while (true) {
-        const { value, done } = await reader.read();
-        console.log(value);
+      // while (true) {
+      //   const { value, done } = await reader.read();
+      //   console.log(value);
 
-        if (done) {
-          setFinalMessage(latestMessage);
-          break;
-        }
-        if (!value) continue;
+      //   if (done) {
+      //     setFinalMessage(latestMessage);
+      //     break;
+      //   }
+      //   if (!value) continue;
 
-        dataToChunkArray(value).forEach((chunk) => {
-          if (chunk.response) {
-            latestMessage += chunk.response;
-            setPendingMessage(latestMessage);
-            return;
-          }
-          setFileMeta({
-            fileId: chunk.fileId!,
-            fileName: chunk.filename!,
-            slideNum: chunk.slidenum!,
-          });
-        });
-      }
+      //   dataToChunkArray(value).forEach((chunk) => {
+      //     if (chunk.response) {
+      //       latestMessage += chunk.response;
+      //       setPendingMessage(latestMessage);
+      //       return;
+      //     }
+      //     setFileMeta({
+      //       fileId: chunk.fileId!,
+      //       fileName: chunk.filename!,
+      //       slideNum: chunk.slidenum!,
+      //     });
+      //   });
+      // }
     },
   });
 
-  useEffect(() => {
-    if (finalMessage == "") return;
-    setPendingMessage("");
+  // useEffect(() => {
+  //   if (finalMessage == "") return;
+  //   setPendingMessage("");
 
-    setMessages([
-      ...messages,
-      {
-        body: finalMessage,
-        createdAt: "",
-        isUser: false,
-        meta: fileMeta,
-      },
-    ]);
-  }, [finalMessage]);
+  //   setMessages([
+  //     ...messages,
+  //     {
+  //       body: finalMessage,
+  //       createdAt: "",
+  //       isUser: false,
+  //       meta: fileMeta,
+  //     },
+  //   ]);
+  // }, [finalMessage]);
 
   return { messages, send: sendMessage, pendingMessage, fileMeta };
 }

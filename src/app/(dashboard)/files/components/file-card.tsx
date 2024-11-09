@@ -10,7 +10,7 @@ export interface FileCardProps {
 
 export default function FileCard({ id, type, name, date }: FileCardProps) {
   const datestr = dayjs(date).format("DD.MM.YYYY");
-  const link = `http://176.114.89.134:3001/file/${name}?id=${id}`;
+  const link = `${process.env.NEXT_PUBLIC_API_URL}/fs/file/${name}?id=${id}`;
   return (
     <a
       href={link}
