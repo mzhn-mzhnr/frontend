@@ -14,7 +14,7 @@ export default async function Page({ params }: PageProps) {
   if (!chat) return <></>;
 
   return (
-    <section className="flex h-full flex-col rounded bg-white shadow">
+    <section className="flex h-full max-h-[calc(100vh-80px)] flex-col rounded bg-white shadow">
       <ChatProvider id={params.id} history={chat.messages}>
         <ChatContent />
       </ChatProvider>

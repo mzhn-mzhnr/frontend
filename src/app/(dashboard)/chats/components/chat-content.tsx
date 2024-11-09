@@ -1,16 +1,16 @@
 "use client";
 
-import { Message, MessageData, send } from "@/api/chats";
+import { Message } from "@/api/chats";
 import UserAvatar from "@/components/profile/avatar";
 import { Button } from "@/components/ui/button";
 import useProfile from "@/hooks/use-profile";
 import { cn } from "@/lib/utils";
-import { useMutation } from "@tanstack/react-query";
-import { Send, X } from "lucide-react";
+import { LoaderCircle, Send, X } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { createRef, FormEvent, useEffect, useState } from "react";
+import useChat from "../hooks/use-chat";
 import ChatAvatar from "./chat-avatar";
+import { useChatInitialContext } from "./chat-initial-provider";
 import { useChatContext } from "./chat-provider";
 
 interface ChatMessageProps {
@@ -45,19 +45,18 @@ function ChatMessage({ message }: ChatMessageProps) {
       )}
     >
       {message.isUser ? UserAvatar_ : <ChatAvatar id={chat_id} />}
-      <div className="flex w-auto flex-col rounded p-4 shadow">
+      <div className="flex w-auto flex-col gap-4 rounded p-4 shadow">
         <span>{message.body}</span>
         {message.meta && (
-          <div>
-            <span className="border p-2">
-              <a
-                href={`${process.env.NEXT_PUBLIC_API_URL}/fs/file/${message.meta.fileName}?id=${message.meta.fileId}#page=${message.meta.slideNum}`}
-                target="_blank"
-                className="hover:underline"
-              >
-                {message.meta.fileName}, стр. {message.meta.slideNum}
-              </a>
-            </span>
+          <div className="border-t-2 border-black/10 py-2">
+            <p className="py-2">Источники:</p>
+            <a
+              href={`${process.env.NEXT_PUBLIC_API_URL}/fs/file/${message.meta.fileName}?id=${message.meta.fileId}#page=${message.meta.slideNum}`}
+              target="_blank"
+              className="text-blue-500 hover:underline"
+            >
+              {message.meta.fileName}, стр. {message.meta.slideNum}
+            </a>
           </div>
         )}
       </div>
@@ -66,66 +65,33 @@ function ChatMessage({ message }: ChatMessageProps) {
 }
 
 export default function ChatContent() {
-  const { chat_id, messages, setMessages } = useChatContext();
+  const mainRef = createRef<HTMLDivElement>();
+  const { chat_id, setMessages } = useChatContext();
+  const { initialMessage, setInitialMessage } = useChatInitialContext();
   const [input, setInput] = useState("");
-  const [pendingMessage, setPendingMessage] = useState<string | undefined>();
-  const router = useRouter();
+  const { messages, send, pendingMessage } = useChat();
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: async (data: MessageData) => {
-      const response = await send(data);
-      if (!response.body) {
-        console.log("do nothing");
-        throw new Error();
-      }
+  useEffect(() => {
+    mainRef.current?.scrollTo(0, mainRef.current?.scrollHeight);
+    if (initialMessage != undefined) {
+      console.log(initialMessage);
+      setInput(initialMessage);
+      setInitialMessage(undefined);
+      onSubmit();
+    }
+  }, []);
 
-      const reader = response.body
-        .pipeThrough(new TextDecoderStream())
-        .getReader();
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) {
-          console.log("break");
-          break;
-        }
-
-        console.log(value);
-
-        type resp = {
-          response: string;
-        };
-
-        const chunk = value.split("\n").find((v) => v.startsWith("data: "));
-
-        if (!chunk) {
-          continue;
-        }
-
-        const data: resp = JSON.parse(chunk.slice(5));
-
-        console.log("set pending message with", data.response);
-
-        setPendingMessage((v) => (v ? v + data.response : data.response));
-      }
-    },
-    onSuccess: () => {
-      setPendingMessage(undefined);
-      router.refresh();
-    },
-    onError: () => {
-      router.refresh();
-    },
-  });
-
-  const onSubmit = (e: FormEvent) => {
-    e.preventDefault();
+  const onSubmit = (e?: FormEvent) => {
+    e?.preventDefault();
     if (!input) {
       return;
     }
     setMessages([...messages, { body: input, isUser: true, createdAt: "" }]);
     setInput("");
-    mutate({ conversationId: chat_id, input: input });
+    mainRef.current?.scrollTo(0, mainRef.current?.scrollHeight);
+    send.mutate({ conversationId: chat_id, input: input });
+
+    mainRef.current?.scrollTo(0, mainRef.current?.scrollHeight);
   };
 
   return (
@@ -139,29 +105,39 @@ export default function ChatContent() {
           </Link>
         </Button>
       </header>
-      <main className="flex-grow space-y-4 px-8 py-4">
+      <main
+        className="flex-grow space-y-4 overflow-y-auto px-8 py-4"
+        ref={mainRef}
+      >
         {messages.map((m, i) => (
           <ChatMessage key={i} message={m} />
         ))}
-        {isPending && pendingMessage}
+        {send.isPending && pendingMessage}
       </main>
       <form
         onSubmit={onSubmit}
-        className="mt-auto flex items-center gap-2 border-t px-2"
+        className={cn(
+          "mt-auto flex items-center gap-2 border-t px-2",
+          send.isPending && "bg-muted"
+        )}
       >
         <input
           className="flex-grow p-4"
           placeholder="Введите сообщение"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          disabled={isPending}
+          disabled={send.isPending}
         />
         <Button
           variant={"ghost"}
           size={"icon"}
-          disabled={input.length == 0 || isPending}
+          disabled={input.length == 0 || send.isPending}
         >
-          <Send />
+          {send.isPending ? (
+            <LoaderCircle className="animate-spin" />
+          ) : (
+            <Send />
+          )}
         </Button>
       </form>
     </>

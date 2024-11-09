@@ -1,4 +1,4 @@
-import { MessageData, send } from "@/api/chats";
+import { MessageData, Meta } from "@/api/chats";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { useChatContext } from "../components/chat-provider";
@@ -11,20 +11,17 @@ function dataToChunkArray(value: string): Chunk[] {
     .map((line) => JSON.parse(line.slice(6)));
 }
 
-export interface FileMetadata {
-  fileId: string;
-  filename: string;
-  slidenum: number;
-}
-
 export default function useChat() {
   const { chat_id, messages, setMessages } = useChatContext();
   const [pendingMessage, setPendingMessage] = useState("");
-  const [fileMeta, setFileMeta] = useState<FileMetadata>();
+  const [fileMeta, setFileMeta] = useState<Meta>();
 
   const sendMessage = useMutation({
     mutationFn: async (data: MessageData) => {
-      const response = await send(data);
+      const response = await fetch("/chats/stream", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
       if (!response.body) return;
 
       const reader = response.body
@@ -47,15 +44,20 @@ export default function useChat() {
           }
           setFileMeta({
             fileId: chunk.fileId!,
-            filename: chunk.filename!,
-            slidenum: chunk.slidenum!,
+            fileName: chunk.filename!,
+            slideNum: chunk.slidenum!,
           });
         });
       }
       setPendingMessage("");
       setMessages([
         ...messages,
-        { body: latestMessage, createdAt: "", isUser: false },
+        {
+          body: latestMessage,
+          createdAt: "",
+          isUser: false,
+          meta: fileMeta,
+        },
       ]);
     },
   });

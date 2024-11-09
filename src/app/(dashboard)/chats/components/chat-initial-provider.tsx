@@ -6,9 +6,9 @@ interface ChatInitialProviderProps extends PropsWithChildren {}
 
 const ChatInitialContext = createContext<{
   initialMessage?: string;
-  setInitialMessage: (value: string) => void;
+  setInitialMessage: (value: string | undefined) => void;
 }>({
-  initialMessage: "",
+  initialMessage: undefined,
   setInitialMessage: () => {},
 });
 
