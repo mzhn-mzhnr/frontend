@@ -41,8 +41,8 @@ function SignInFormProvider({
   const form = useForm<SignInData>({
     resolver: zodResolver(signInForm),
     defaultValues: {
-      email: "",
-      password: "",
+      email: "admin@admin.ru",
+      password: "admin",
     },
   });
   const { toast } = useToast();
