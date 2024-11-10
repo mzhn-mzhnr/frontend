@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body className={`${font.className} antialiased`}>
-        <PageReloader />
+        {/* <PageReloader /> */}
         <ReactQueryProvider>{children}</ReactQueryProvider>
         <Toaster />
       </body>
