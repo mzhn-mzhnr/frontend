@@ -56,7 +56,7 @@ function ChatMessage({ message }: ChatMessageProps) {
                 key={i}
                 href={`${process.env.NEXT_PUBLIC_API_URL}/fs/file/${m.fileName}?id=${m.fileId}#page=${m.slideNum}`}
                 target="_blank"
-                className="text-blue-500 hover:underline"
+                className="block text-blue-500 hover:underline"
               >
                 {m.fileName}, стр. {m.slideNum}
               </a>
