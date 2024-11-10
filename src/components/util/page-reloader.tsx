@@ -20,8 +20,8 @@ function PageReloaderCore() {
     const newParams = new URLSearchParams(params);
     newParams.delete("reload");
 
-    router.replace(`?${newParams}`);
-    window.location.reload();
+    const url = `${window.location.pathname}?${newParams.toString()}`;
+    window.location.replace(url);
   }, [params, router]);
 
   return <></>;
